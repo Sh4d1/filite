@@ -8,9 +8,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - id: owner
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository_owner }}
       - id: prep
         run: |
-          DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/filite
+          DOCKER_IMAGE=ghcr.io/${{ steps.owner.outputs.lowercase }}/filite
           VERSION=noop
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
@@ -36,7 +40,7 @@ jobs:
       - uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ steps.owner.outputs.lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/cache@v2
