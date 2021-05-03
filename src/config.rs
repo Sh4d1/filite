@@ -24,6 +24,7 @@ pub fn write(path: impl AsRef<Path>) -> Result<()> {
 #[serde(default, rename_all = "kebab-case")]
 pub struct Config {
     pub port: u16,
+    pub host: String,
     pub database: DatabaseConfig,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tls: Option<TlsConfig>,
@@ -44,6 +45,10 @@ impl Config {
     fn log_level_is_default(level: &str) -> bool {
         level.to_lowercase() == Self::default_log_level()
     }
+    #[inline]
+    fn default_host() -> String {
+        "127.0.0.1".to_owned()
+    }
 }
 
 impl Default for Config {
@@ -51,6 +56,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             port: 80,
+            host: Self::default_host(),
             database: Default::default(),
             tls: None,
             runtime: Default::default(),

@@ -11,6 +11,7 @@ mod tests;
 
 use anyhow::Error;
 use config::Config;
+use std::net::IpAddr;
 use structopt::StructOpt;
 use tracing_subscriber::fmt::format::FmtSpan;
 use warp::{Filter, Reply};
@@ -75,9 +76,13 @@ async fn serve(
                 .tls()
                 .cert_path(&tls_config.cert)
                 .key_path(&tls_config.key)
-                .run(([127, 0, 0, 1], config.port))
+                .run((config.host.parse::<IpAddr>().unwrap(), config.port))
                 .await
         }
-        None => warp::serve(filter).run(([127, 0, 0, 1], config.port)).await,
+        None => {
+            warp::serve(filter)
+                .run((config.host.parse::<IpAddr>().unwrap(), config.port))
+                .await
+        }
     }
 }
